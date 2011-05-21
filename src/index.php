@@ -246,14 +246,14 @@
 						document.location.href = "#!q=" + id;		
 					} 
 					Y.all([i,p]).addClass('loading');
-					Y.io("/api/v1/" + q + "?clean=1", {
+					Y.io("/api/v1/?clean=1&url="+q, {
 						'method':'GET',
 						'on': {
 							'complete' : function(id, o) {
 								var j = $j.parse(o.responseText);
 								p.set('innerHTML', $j.stringify(j, 0, 4));	
 								Y.all([i,p]).removeClass('loading');
-								$('h2 a').set('innerHTML',"http://opengraph.ws/api/v1/"+j.page.resource).setAttribute('href',"http://opengraph.ws/api/v1/"+j.page.resource);
+								$('h2 a').set('innerHTML',"http://opengraph.ws/api/v1?url="+j.page.resource).setAttribute('href',"http://opengraph.ws/api/v1/"+j.page.resource);
 							}
 						}
 					});

@@ -1,5 +1,11 @@
 # OpenGraph.ws
-a simple web service to retrieve Open Graph meta data
+
+## Features
+
+* Resource URLs normalized by the API
+* Page & Domain results returned for each request
+* Structured response provides easy access to data 
+* Data cached for 24 hours for quick API responses
 
 ## API Request
 	http://opensource.ws/api/v1/{:url}

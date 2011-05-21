@@ -24,7 +24,7 @@
 
 	// no q
 	if ( !$q ) {
-		$q = "http://" . getenv("opengraph_site__host") . "/test";
+		$q = "http://" . getenv("opengraph_site__host") . "/test";		
 	} 
 	
 	// api
@@ -106,13 +106,14 @@
 				min-height: 800px;
 			}
 			
-			h1, b { 
+			h1, h1 a { 
 				font-family: 'Amaranth', arial, serif;
 				font-size: 40px;
 				font-weight: bold;
 				color: #3B5998;
 				text-shadow: #fff 1px 1px 1px;
 				float: left;
+				text-decoration: none;
 			}		
 			
 			h1 em {
@@ -205,7 +206,7 @@
 	</head>
 	<body>	
 		<div id="doc">
-			<h1>OpenGraph<em>.ws</em></h1>
+			<h1><a href="/">OpenGraph<em>.ws</em></a></h1>
 			<form method="post">
 				<fieldset>			
 					<legend>Search for Open Graph Tags</legend>
@@ -222,7 +223,7 @@
 				&copy; 2011 <a href="http://the.kuhl.co">the.kuhl.co</a> -
 				developed by <a href="http://twitter.com/traviskuhl">@traviskuhl</a> -
 				<a href="http://github.com/traviskuhl/opengraph.ws/">the code</a> -		
-				<a href="http://github.com/traviskuhl/opengraph.ws/">api docs</a> -
+				<a href="https://github.com/traviskuhl/opengraph.ws/blob/master/README.md">api docs</a> -
 				<a href="http://ogp.me/">ogp.me</a>
 			</div>
 		</div>		

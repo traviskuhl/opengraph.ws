@@ -124,6 +124,14 @@ ini_set("display_errors",1);
 	// cache
 	header("X-OpenGraphWs-Cache: ".implode(",",$cached));
 	
+	// expire time
+	$exp = $og['ts'] + (60*60*24);
+	
+	// expire
+	header("Expires: ".dt($exp));
+	header("Cache-Control:max-age=".(60*60*24));
+	header("Last-Modified:".dt($og['ts']));
+	
 	// resp
 	$resp = array( 
 		"status" => 1, 
@@ -146,6 +154,10 @@ ini_set("display_errors",1);
 	// print our response
 	exit(json_encode($resp));
 
+/* dt */
+function dt($ts) {
+	return date("D, d M Y H:i:s T", $ts);
+}
 
 /* appendOpenGraph */
 function appendOpenGraph(&$var, $og) {

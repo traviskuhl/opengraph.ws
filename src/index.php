@@ -2,9 +2,15 @@
 	
 	// common
 	include("common.inc");
-
+	
 	// q
 	$q = $o = strtolower(p('q'));
+
+	// if the accept header is text/javascript or application/javascript
+	// send them to the api
+	if ( $q AND p("HTTP_ACCEPT", false, $_SERVER) AND in_array($_SERVER['HTTP_ACCEPT'], array('text/javascript','application/javascript')) ) {		
+		exit(header("Location:http://".getenv("opengraph_site__host")."/api?q=".$q));
+	}
 	
 		// cleanup
 		$q = trim(str_replace(array("http:/","http:/","http://","https://"),"",$q),'/');	
@@ -240,7 +246,7 @@
 					var i = $("input"); var p = $('div.resp pre'); p.set('innerHTML','');
 					var q = i.get('value');			
 					if ( typeof history == 'object' && typeof history.pushState == 'function' ) {
-						history.pushState({'q': q}, '', "/q/"+q);
+						history.pushState({'q': q}, '', "?q="+q);
 					}		
 					else {	
 						document.location.href = "#!q=" + id;		

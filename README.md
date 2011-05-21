@@ -8,7 +8,8 @@
 * Data cached for 24 hours for quick API responses
 
 ## API Request
-	http://opensource.ws/api/v1/{:url}
+	http://opensource.ws/api/v1?url={:url}
+	http://opensource.ws/?q={:url} (need to send with "accept:application/javascript" header)
 	
 ## API Response
 ```javascript

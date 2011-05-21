@@ -16,6 +16,11 @@ ini_set("display_errors",1);
 	// raw url
 	$url = p('url'); 
 		
+		// if q set as url
+		if ( !$url AND p('q') ) {
+			$url = p('q');
+		}
+		
 		// empty url try to use the referrer
 		if ( $url === false AND p('HTTP_REFERER', false, $_SERVER) ) {
 			$url = $_SERVER['HTTP_REFERER'];

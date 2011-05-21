@@ -5,6 +5,7 @@ a simple web service to retrieve Open Graph meta data
 	http://opensource.ws/api/v1/{:url}
 	
 ## API Response
+```javascript
 {
     "status": 1,
     "page": {
@@ -50,3 +51,4 @@ a simple web service to retrieve Open Graph meta data
         }
     }
 }
+```

@@ -1,0 +1,37 @@
+# site.dpf
+		
+# internal variables
+src = ./src
+htdocs = /home/bolt/share/htdocs/opengraph/
+conf = /home/bolt/conf/httpd/
+
+# meta data
+meta project = opengraph
+meta name = site
+meta version = file:changelog
+meta summary = Open Graph WS
+meta description = Open Graph WS
+meta changelog = changelog
+
+# fe settings
+set host opengraph.ws
+set port 80
+set cache
+set mongo.host
+set mongo.db
+set mongo.user
+set mongo.pass
+
+# directorys
+dir - - - $(htdocs)
+dir - - - $(conf)
+
+# pear
+find - - - $(htdocs)	$(src)/ -depth -name "*.php" -or -name "*.inc"
+
+# set our conf file
+settings $(conf)	./opengraph.conf
+
+# post install
+command post-install /etc/init.d/httpd restart
+command post-set /etc/init.d/httpd restart

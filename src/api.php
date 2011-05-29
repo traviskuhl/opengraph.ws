@@ -15,42 +15,51 @@ ini_set("display_errors",1);
 
 	// raw url
 	$url = p('url'); 
+	$uid = p('uid');
 		
-		// if q set as url
-		if ( !$url AND p('q') ) {
-			$url = p('q');
-		}
+	// uid
+	if ( !$uid ) {
+			
+			// if q set as url
+			if ( !$url AND p('q') ) {
+				$url = p('q');
+			}
+			
+			// empty url try to use the referrer
+			if ( $url === false AND p('HTTP_REFERER', false, $_SERVER) ) {
+				$url = $_SERVER['HTTP_REFERER'];
+			}
+			
+			// still none
+			if ( !$url ) {
+				error("No URL Provided", 400);
+			}
+			
+			// https
+			$_https = ( stripos($url,"https") !== false ? true : false );
 		
-		// empty url try to use the referrer
-		if ( $url === false AND p('HTTP_REFERER', false, $_SERVER) ) {
-			$url = $_SERVER['HTTP_REFERER'];
-		}
+		// santaize
+		$url = str_replace(array("http:/","https:/"), "", $url);
 		
-		// still none
-		if ( !$url ) {
-			error("No URL Provided", 400);
-		}
-		
-		// https
-		$_https = ( stripos($url,"https") !== false ? true : false );
+		// what to add back
+		$url = ($_https ? "https://" : "http://" ) . trim($url,"/");
 	
-	// santaize
-	$url = str_replace(array("http:/","https:/"), "", $url);
+		// make sure it's really a url
+		filter_var($url, FILTER_VALIDATE_URL);
 	
-	// what to add back
-	$url = ($_https ? "https://" : "http://" ) . trim($url,"/");
-
-	// make sure it's really a url
-	filter_var($url, FILTER_VALIDATE_URL);
-
-	// make sure it's really a url
-	if ( !$url ) { error("Invalid URL", 400); }
-	
-	// one more trick
-	$url = _getFinalUrl($url);
+		// make sure it's really a url
+		if ( !$url ) { error("Invalid URL", 400); }
 		
-	// parse url
-	$p = parse($url);
+		// one more trick
+		$url = _getFinalUrl($url);
+			
+		// parse url
+		$p = parse($url);
+		
+	}
+	else {
+		$p['uid'] = $uid;
+	}
 	
 	// mongo
 	$m = mongo();
@@ -66,12 +75,12 @@ ini_set("display_errors",1);
 				
 			// fetch the page to 
 			// see what ogg we can get
-			$og = OpenGraph::fetch($url);
+			$o = OpenGraph::fetch($url);
 				
-				if ( !$og ) { $og = array(); }
+				if ( !$o ) { $o = array(); }
 			
 			// $d
-			$d = (is_object($og) ? iterator_to_array($og) : array());
+			$d = (is_object($o) ? iterator_to_array($o) : array());
 			
 			// set data 
 			$data = array(
@@ -86,12 +95,15 @@ ini_set("display_errors",1);
 			$m->sites->update(array('_id'=>$p['uid']), $data, array('upsert'=>true));
 			
 			// reset ogg
-			$og = array('data' => $d, 'ts' => time() );
+			$og = array('data' => $d, 'ts' => time(), 'rid' => $p['rid'] );
 	
 		}		
 
 		// cached
 		$cached[] = $p['uid'].":".$og['ts'];
+		
+	// get the domain
+	$p = parse("http://".$og['rid']);
 
 	// ogd
 	$ogd = $m->sites->findOne(array('_id'=>$p['domain_uid']));
@@ -151,6 +163,8 @@ ini_set("display_errors",1);
 			"created" => date('c', $ogd['ts'])			
 		) 
 	);
+
+
 
 	// append our page stuff
 	appendOpenGraph($resp['page'], $og['data']);
@@ -251,6 +265,11 @@ function appendOpenGraph(&$var, $og) {
 		if ( count($audio) > 0 ) {
 			$var['audio'] = $audio;
 		}
+		
+	// unless they asked for images
+	if ( p('images') ) {
+		$var['images'] = $og['images'];
+	}	
 
 }
 

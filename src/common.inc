@@ -160,7 +160,7 @@ class OpenGraph implements Iterator
    * @return OpenGraph
    */
 	static public function fetch($URI) {
-		return self::_parse(`curl -sL $URI`);
+		return self::_parse(`curl -sL $URI`, $URI);
 	}
 
   /**
@@ -170,7 +170,11 @@ class OpenGraph implements Iterator
    * @param $HTML    HTML to parse
    * @return OpenGraph
    */
-	static private function _parse($HTML) {	
+	static private function _parse($HTML, $uri) {	
+	
+		// parse uri
+		$up = parse_url($uri);
+	
 		$old_libxml_error = libxml_use_internal_errors(true);
 
 		$doc = new DOMDocument();
@@ -179,19 +183,91 @@ class OpenGraph implements Iterator
 		libxml_use_internal_errors($old_libxml_error);
 
 		$tags = $doc->getElementsByTagName('meta');
-		if (!$tags || $tags->length === 0) {
-			return false;
-		}
 
 		$page = new self();
-
-		foreach ($tags AS $tag) {
-			if ($tag->hasAttribute('property') &&
-			    strpos($tag->getAttribute('property'), 'og:') === 0) {
-				$key = strtr(substr($tag->getAttribute('property'), 3), '-', '_');
-				$page->_values[$key] = $tag->getAttribute('content');
+		$desc = $img = false; 
+	
+		if ( $tags ) {
+			foreach ($tags AS $tag) {
+				if ($tag->hasAttribute('property') &&
+				    strpos($tag->getAttribute('property'), 'og:') === 0) {
+					$key = strtr(substr($tag->getAttribute('property'), 3), '-', '_');
+					$page->_values[$key] = $tag->getAttribute('content');
+				}
+				else if ( $tag->hasAttribute('name') ){
+					$n = $tag->getAttribute('name');
+					if ( $n == 'description' ) {
+						$desc = $tag->getAttribute('content');
+					}
+				}
 			}
 		}
+		
+		$ln = $doc->getElementsByTagName('link');
+		
+		// links
+		if ( $ln ) {
+			foreach ($ln as $tag) {
+				if ( $tag->hasAttribute('rel') ) {
+					$rel = $tag->getAttribute('rel');
+					if ( $rel == 'image_src' ) {				
+						$img = $tag->getAttribute('href');
+					}
+					else if ( $rel == 'img_src' ) {				
+						$img = $tag->getAttribute('href');
+					}
+				}
+			}
+		}
+		
+		if ( !isset($page->_values['image']) AND $img ) {
+			$page->_values['image'] = $img;
+		}
+		
+		if ( !isset($page->_values['description']) AND $desc ) {
+			$page->_values['description'] = $desc;
+		}
+		
+		if ( !isset($page->_values['title']) AND $doc->getElementsByTagName('title')->length ) {
+			$page->_values['title'] = (string)$doc->getElementsByTagName('title')->item(0)->firstChild->wholeText;
+		}	
+		
+		$imgtags = $doc->getElementsByTagName('img');
+		
+		$_images = array();
+		
+		// image tags
+		if ($imgtags) {
+			foreach ( $imgtags as $tag ) {
+				$src = $tag->getAttribute('src');
+				if ( $src ) {
+					// figure out if it's doesn't have http
+					if ( strpos($src,'http') === false ) {
+						if ( $src{0} == '/' ) {
+							$src = $up['scheme'] ."://" . $up['host'] . $src;
+						}
+						else {
+							$src = trim($uri,'/') . "/" . $src;
+						}
+					}				
+					$uid = md5($src);
+					$_images[$uid] = array(
+						'href' => $src,
+						'width' => (int)$tag->getAttribute('width'),
+						'height' => (int)$tag->getAttribute('height'),
+						'alt' => $tag->getAttribute('alt'),
+						'title' => $tag->getAttribute('title')
+					);
+				}
+			}		
+		}
+		
+		$page->_values['images'] = array_filter(array_values($_images), function($i){ 
+			if ( $i['width'] > 20 AND $i['height'] > 20 ) {
+				return $i;
+			}
+			return false;
+		}); 
 
 		if (empty($page->_values)) { return false; }
 		

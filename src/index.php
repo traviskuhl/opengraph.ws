@@ -259,7 +259,7 @@
 								var j = $j.parse(o.responseText);
 								p.set('innerHTML', $j.stringify(j, 0, 4));	
 								Y.all([i,p]).removeClass('loading');
-								$('h2 a').set('innerHTML',"http://opengraph.ws/api/v1?url="+j.page.resource).setAttribute('href',"http://opengraph.ws/api/v1/"+j.page.resource);
+								$('h2 a').set('innerHTML',"http://opengraph.ws/api/v1?url="+j.page.resource).setAttribute('href',"http://opengraph.ws/api/v1?url="+j.page.resource);
 							}
 						}
 					});
@@ -284,5 +284,8 @@
 			
 			});
 		</script>
+		<script src="//static.getclicky.com/js" type="text/javascript"></script>
+		<script type="text/javascript">try{ clicky.init(66428332); }catch(e){}</script>
+		<noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/66428332ns.gif" /></p></noscript>		
 	</body>
 </html>

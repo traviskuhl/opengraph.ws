@@ -6,10 +6,13 @@
 * Page & Domain results returned for each request
 * Structured response provides easy access to data 
 * Data cached for 24 hours for quick API responses
+* Fallback to `<title>`, `<meta name='description'>` & `<link rel='image_src'>` if OG tags are not present
+* Include all image tags on the page (append `?images=true`)
 
 ## API Request
 	http://opensource.ws/api/v1?url={:url}
 	http://opensource.ws/?q={:url} (need to send with "accept:application/javascript" header)
+	http://opensource.ws/api/v1?url={:url}&images={:true|false}
 	
 ## API Response
 ```javascript
